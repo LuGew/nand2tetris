@@ -31,6 +31,12 @@ public class Parser {
     public static final String NOT = "not";
     public static final String PUSH = "push";
     public static final String POP = "pop";
+    public static final String LABEL = "label";
+    public static final String GOTO = "goto";
+    public static final String IF = "if-goto";
+    public static final String FUNCTION = "function";
+    public static final String RETURN = "return";
+    public static final String CALL = "call";
     public static final int C_ARITHMETIC = 1;
     public static final int C_PUSH = 2;
     public static final int C_POP = 3;
@@ -40,7 +46,6 @@ public class Parser {
     public static final int C_FUNCTION = 7;
     public static final int C_RETURN = 8;
     public static final int C_CALL = 9;
-    public static final int C_OTHER = 0;
 
     private Scanner scanner;
     private String currentCommand;
@@ -89,8 +94,20 @@ public class Parser {
                 return C_PUSH;
             case POP:
                 return C_POP;
+            case LABEL:
+                return C_LABEL;
+            case GOTO:
+                return C_GOTO;
+            case IF:
+                return C_IF;
+            case FUNCTION:
+                return C_FUNCTION;
+            case RETURN:
+                return C_RETURN;
+            case CALL:
+                return C_CALL;
             default:
-                return C_OTHER;
+                return 0;
         }
 
     }
@@ -103,9 +120,15 @@ public class Parser {
     public String arg1() {
         switch (commandType()) {
             case C_ARITHMETIC:
+            case C_RETURN:
                 return currentCommand;
             case C_POP:
             case C_PUSH:
+            case C_LABEL:
+            case C_GOTO:
+            case C_IF:
+            case C_CALL:
+            case C_FUNCTION:
                 return currentCommand.split("\\s+")[1];
             default:
                 return null;

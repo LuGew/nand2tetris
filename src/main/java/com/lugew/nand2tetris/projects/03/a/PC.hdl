@@ -1,0 +1,97 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/PC.hdl
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+	Not(in=reset,out= notReset);
+	And(a=notReset,b=load,out=loadResult);
+	And(a=notReset,b=inc,out=notInc);
+	Not(in=loadResult,out=notLoadResult);
+	And(a=notLoadResult,b=notInc,out=incResult);
+	
+
+   
+	
+	
+	Mux(a=tt0,  b=in[0],   sel=load, out=outIn0);
+	Mux(a=tt1,  b=in[1],   sel=load, out=outIn1);
+	Mux(a=tt2,  b=in[2],   sel=load, out=outIn2);
+	Mux(a=tt3,  b=in[3],   sel=load, out=outIn3);
+	Mux(a=tt4,  b=in[4],   sel=load, out=outIn4);
+	Mux(a=tt5,  b=in[5],   sel=load, out=outIn5);
+	Mux(a=tt6,  b=in[6],   sel=load, out=outIn6);
+	Mux(a=tt7,  b=in[7],   sel=load, out=outIn7);
+	Mux(a=tt8,  b=in[8],   sel=load, out=outIn8);
+	Mux(a=tt9,  b=in[9],   sel=load, out=outIn9);
+	Mux(a=tt10, b=in[10],  sel=load, out=outIn10);
+	Mux(a=tt11, b=in[11],  sel=load, out=outIn11);
+	Mux(a=tt12, b=in[12],  sel=load, out=outIn12);
+	Mux(a=tt13, b=in[13],  sel=load, out=outIn13);
+	Mux(a=tt14, b=in[14],  sel=load, out=outIn14);
+	Mux(a=tt15, b=in[15],  sel=load, out=outIn15);
+	FullAdder(a=outIn0, b=incResult,c=false, 	sum=outInIn0 ,carry=c0);
+	FullAdder(a=outIn1, b=false,    c=c0,		sum=outInIn1 ,carry=c1);
+	FullAdder(a=outIn2, b=false,    c=c1,		sum=outInIn2 ,carry=c2);
+	FullAdder(a=outIn3, b=false,    c=c2,		sum=outInIn3 ,carry=c3);
+	FullAdder(a=outIn4, b=false,    c=c3,		sum=outInIn4 ,carry=c4);
+	FullAdder(a=outIn5, b=false,    c=c4,		sum=outInIn5 ,carry=c5);
+	FullAdder(a=outIn6, b=false,    c=c5,		sum=outInIn6 ,carry=c6);
+	FullAdder(a=outIn7, b=false,    c=c6,		sum=outInIn7 ,carry=c7);
+	FullAdder(a=outIn8, b=false,    c=c7,		sum=outInIn8 ,carry=c8);
+	FullAdder(a=outIn9, b=false,    c=c8,		sum=outInIn9 ,carry=c9);
+	FullAdder(a=outIn10,b=false,    c=c9,		sum=outInIn10,carry=c10);
+	FullAdder(a=outIn11,b=false,    c=c10,		sum=outInIn11,carry=c11);
+	FullAdder(a=outIn12,b=false,    c=c11,		sum=outInIn12,carry=c12);
+	FullAdder(a=outIn13,b=false,    c=c12,		sum=outInIn13,carry=c13);
+	FullAdder(a=outIn14,b=false,    c=c13,		sum=outInIn14,carry=c14);
+	FullAdder(a=outIn15,b=false,    c=c14,		sum=outInIn15,carry=c15);
+	And(a=outInIn0 , b=notReset, out=resetOut0);
+    And(a=outInIn1 , b=notReset, out=resetOut1);
+    And(a=outInIn2 , b=notReset, out=resetOut2);
+    And(a=outInIn3 , b=notReset, out=resetOut3);
+    And(a=outInIn4 , b=notReset, out=resetOut4);
+    And(a=outInIn5 , b=notReset, out=resetOut5);
+    And(a=outInIn6 , b=notReset, out=resetOut6);
+    And(a=outInIn7 , b=notReset, out=resetOut7);
+    And(a=outInIn8 , b=notReset, out=resetOut8);
+    And(a=outInIn9 , b=notReset, out=resetOut9);
+    And(a=outInIn10, b=notReset, out=resetOut10);
+    And(a=outInIn11, b=notReset, out=resetOut11);
+    And(a=outInIn12, b=notReset, out=resetOut12);
+    And(a=outInIn13, b=notReset, out=resetOut13);
+    And(a=outInIn14, b=notReset, out=resetOut14);
+    And(a=outInIn15, b=notReset, out=resetOut15);
+    DFF(in=resetOut0,  out=out[0],  out=tt0);
+    DFF(in=resetOut1,  out=out[1],  out=tt1);
+    DFF(in=resetOut2,  out=out[2],  out=tt2);
+    DFF(in=resetOut3,  out=out[3],  out=tt3);
+    DFF(in=resetOut4,  out=out[4],  out=tt4);
+    DFF(in=resetOut5,  out=out[5],  out=tt5);
+    DFF(in=resetOut6,  out=out[6],  out=tt6);
+    DFF(in=resetOut7,  out=out[7],  out=tt7);
+    DFF(in=resetOut8,  out=out[8],  out=tt8);
+    DFF(in=resetOut9,  out=out[9],  out=tt9);
+    DFF(in=resetOut10, out=out[10], out=tt10);
+    DFF(in=resetOut11, out=out[11], out=tt11);
+    DFF(in=resetOut12, out=out[12], out=tt12);
+    DFF(in=resetOut13, out=out[13], out=tt13);
+    DFF(in=resetOut14, out=out[14], out=tt14);
+    DFF(in=resetOut15, out=out[15], out=tt15);
+	
+	
+	}
+	
+	

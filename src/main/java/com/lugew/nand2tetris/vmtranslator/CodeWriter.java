@@ -277,47 +277,48 @@ public class CodeWriter {
     }
 
     public void writeGoto(String label) throws IOException {
-        writer.append("@").append(label).append("\n").append("0;JMP\n");
+        writer.append("@").append(label).append("\n").append("A=M\n0;JMP\n");
     }
 
     public void writeIf(String label) throws IOException {
         writer.append("@SP\n" +
-                "A=M-1\n" +
+                "M=M-1\n" +
+                "A=M\n" +
                 "D=M\n" +
                 "@" + label + "\n" +
-                "D;JNE\n");
+                "D;JGT\n");
     }
 
     public void writeReturn() throws IOException {
         //FRAME=LCL
         writer.append("@LCL\n" +
-                "D=A\n" +
+                "D=M\n" +
                 "@FRAME\n" +
-                "M=D");
+                "M=D\n");
         //RET=*(FRAME-5)
         pushSegment("FRAME");
         writePushPop(Parser.C_PUSH, Parser.CONSTANT, 5);
         writeArithmetic(Parser.SUB);
         writer.append("@SP\n" +
-                "M=M-1");
+                "M=M-1\n");
         writer.append("@SP\n" +
+                "A=M\n" +
                 "A=M\n" +
                 "D=M\n" +
                 "@RET\n" +
                 "M=D\n");
         //*ARG=pop()
         writer.append("@SP\n" +
+                "M=M-1\n" +
                 "A=M\n" +
-                "D=M\n" +
-                "@SP\n" +
-                "M=M-1\n");
+                "D=M\n");
         writer.append("@ARG\n" +
                 "A=M\n" +
                 "M=D\n");
 
         //SP=ARG+1
         writer.append("@ARG\n" +
-                "D=A+1\n" +
+                "D=M+1\n" +
                 "@SP\n" +
                 "M=D\n");
 
@@ -326,8 +327,9 @@ public class CodeWriter {
         writePushPop(Parser.C_PUSH, Parser.CONSTANT, 1);
         writeArithmetic(Parser.SUB);
         writer.append("@SP\n" +
-                "M=M-1");
+                "M=M-1\n");
         writer.append("@SP\n" +
+                "A=M\n" +
                 "A=M\n" +
                 "D=M\n" +
                 "@THAT\n" +
@@ -337,8 +339,9 @@ public class CodeWriter {
         writePushPop(Parser.C_PUSH, Parser.CONSTANT, 2);
         writeArithmetic(Parser.SUB);
         writer.append("@SP\n" +
-                "M=M-1");
+                "M=M-1\n");
         writer.append("@SP\n" +
+                "A=M\n" +
                 "A=M\n" +
                 "D=M\n" +
                 "@THIS\n" +
@@ -348,8 +351,9 @@ public class CodeWriter {
         writePushPop(Parser.C_PUSH, Parser.CONSTANT, 3);
         writeArithmetic(Parser.SUB);
         writer.append("@SP\n" +
-                "M=M-1");
+                "M=M-1\n");
         writer.append("@SP\n" +
+                "A=M\n" +
                 "A=M\n" +
                 "D=M\n" +
                 "@ARG\n" +
@@ -359,8 +363,9 @@ public class CodeWriter {
         writePushPop(Parser.C_PUSH, Parser.CONSTANT, 4);
         writeArithmetic(Parser.SUB);
         writer.append("@SP\n" +
-                "M=M-1");
+                "M=M-1\n");
         writer.append("@SP\n" +
+                "A=M\n" +
                 "A=M\n" +
                 "D=M\n" +
                 "@LCL\n" +
@@ -383,12 +388,12 @@ public class CodeWriter {
         writeArithmetic(Parser.SUB);
         //ARG=SP-n-5
         writer.append("@SP\n" +
-                "M=M-1");
+                "M=M-1\n");
         writer.append("@SP\n" +
                 "A=M\n" +
                 "D=M\n" +
                 "@ARG\n" +
-                "M=D");
+                "M=D\n");
         //LCL=SP
         writer.append("@SP\n" +
                 "D=A\n" +
@@ -408,7 +413,7 @@ public class CodeWriter {
 
     private void pushSegment(String segment) throws IOException {
         writer.append("@" + segment + "\n" +
-                "D=A\n" +
+                "D=M\n" +
                 "@SP\n" +
                 "A=M\n" +
                 "M=D\n" +

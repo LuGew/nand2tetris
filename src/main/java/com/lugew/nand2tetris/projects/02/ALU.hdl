@@ -1,0 +1,278 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/ALU.hdl
+
+/**
+ * The ALU (Arithmetic Logic Unit).
+ * Computes one of the following functions:
+ * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
+ * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
+ * according to 6 input bits denoted zx,nx,zy,ny,f,no.
+ * In addition, the ALU computes two 1-bit outputs:
+ * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
+ * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
+ */
+
+// Implementation: the ALU logic manipulates the x and y inputs
+// and operates on the resulting values, as follows:
+// if (zx == 1) set x = 0        // 16-bit constant
+// if (nx == 1) set x = !x       // bitwise not
+// if (zy == 1) set y = 0        // 16-bit constant
+// if (ny == 1) set y = !y       // bitwise not
+// if (f == 1)  set out = x + y  // integer 2's complement addition
+// if (f == 0)  set out = x & y  // bitwise and
+// if (no == 1) set out = !out   // bitwise not
+// if (out == 0) set zr = 1
+// if (out < 0) set ng = 1
+
+CHIP ALU {
+    IN  
+        x[16], y[16],  // 16-bit inputs        
+        zx, // zero the x input?
+        nx, // negate the x input?
+        zy, // zero the y input?
+        ny, // negate the y input?
+        f,  // compute out = x + y (if 1) or x & y (if 0)
+        no; // negate the out output?
+
+    OUT 
+        out[16], // 16-bit output
+        zr, // 1 if (out == 0), 0 otherwise
+        ng; // 1 if (out < 0),  0 otherwise
+
+    PARTS:
+	Not(in=zx,out=zxResult);
+	And(a=zxResult,b=x[0],out=xTemp0);
+	And(a=zxResult,b=x[1],out=xTemp1);
+	And(a=zxResult,b=x[2],out=xTemp2);
+	And(a=zxResult,b=x[3],out=xTemp3);
+	And(a=zxResult,b=x[4],out=xTemp4);
+	And(a=zxResult,b=x[5],out=xTemp5);
+	And(a=zxResult,b=x[6],out=xTemp6);
+	And(a=zxResult,b=x[7],out=xTemp7);
+	And(a=zxResult,b=x[8],out=xTemp8);
+	And(a=zxResult,b=x[9],out=xTemp9);
+	And(a=zxResult,b=x[10],out=xTemp10);
+	And(a=zxResult,b=x[11],out=xTemp11);
+	And(a=zxResult,b=x[12],out=xTemp12);
+	And(a=zxResult,b=x[13],out=xTemp13);
+	And(a=zxResult,b=x[14],out=xTemp14);
+	And(a=zxResult,b=x[15],out=xTemp15);
+	                            
+	Xor(a=xTemp0, b=nx,out=xResult0);
+	Xor(a=xTemp1, b=nx,out=xResult1);
+	Xor(a=xTemp2, b=nx,out=xResult2);
+	Xor(a=xTemp3, b=nx,out=xResult3);
+	Xor(a=xTemp4, b=nx,out=xResult4);
+	Xor(a=xTemp5, b=nx,out=xResult5);
+	Xor(a=xTemp6, b=nx,out=xResult6);
+	Xor(a=xTemp7, b=nx,out=xResult7);
+	Xor(a=xTemp8, b=nx,out=xResult8);
+	Xor(a=xTemp9, b=nx,out=xResult9);
+	Xor(a=xTemp10,b=nx,out=xResult10);
+	Xor(a=xTemp11,b=nx,out=xResult11);
+	Xor(a=xTemp12,b=nx,out=xResult12);
+	Xor(a=xTemp13,b=nx,out=xResult13);
+	Xor(a=xTemp14,b=nx,out=xResult14);
+	Xor(a=xTemp15,b=nx,out=xResult15);
+	
+	Not(in=zy,out=zyResult);
+	And(a=zyResult,b=y[0], out=yTemp0);
+	And(a=zyResult,b=y[1], out=yTemp1);
+	And(a=zyResult,b=y[2], out=yTemp2);
+	And(a=zyResult,b=y[3], out=yTemp3);
+	And(a=zyResult,b=y[4], out=yTemp4);
+	And(a=zyResult,b=y[5], out=yTemp5);
+	And(a=zyResult,b=y[6], out=yTemp6);
+	And(a=zyResult,b=y[7], out=yTemp7);
+	And(a=zyResult,b=y[8], out=yTemp8);
+	And(a=zyResult,b=y[9], out=yTemp9);
+	And(a=zyResult,b=y[10],out=yTemp10);
+	And(a=zyResult,b=y[11],out=yTemp11);
+	And(a=zyResult,b=y[12],out=yTemp12);
+	And(a=zyResult,b=y[13],out=yTemp13);
+	And(a=zyResult,b=y[14],out=yTemp14);
+	And(a=zyResult,b=y[15],out=yTemp15);
+	
+	Xor(a=yTemp0, b=ny,out=yResult0);
+	Xor(a=yTemp1, b=ny,out=yResult1);
+	Xor(a=yTemp2, b=ny,out=yResult2);
+	Xor(a=yTemp3, b=ny,out=yResult3);
+	Xor(a=yTemp4, b=ny,out=yResult4);
+	Xor(a=yTemp5, b=ny,out=yResult5);
+	Xor(a=yTemp6, b=ny,out=yResult6);
+	Xor(a=yTemp7, b=ny,out=yResult7);
+	Xor(a=yTemp8, b=ny,out=yResult8);
+	Xor(a=yTemp9, b=ny,out=yResult9);
+	Xor(a=yTemp10,b=ny,out=yResult10);
+	Xor(a=yTemp11,b=ny,out=yResult11);
+	Xor(a=yTemp12,b=ny,out=yResult12);
+	Xor(a=yTemp13,b=ny,out=yResult13);
+	Xor(a=yTemp14,b=ny,out=yResult14);
+	Xor(a=yTemp15,b=ny,out=yResult15);
+	
+	And(a=xResult0, b=yResult0, out=outTemp0);
+	And(a=xResult1, b=yResult1, out=outTemp1);
+	And(a=xResult2, b=yResult2, out=outTemp2);
+	And(a=xResult3, b=yResult3, out=outTemp3);
+	And(a=xResult4, b=yResult4, out=outTemp4);
+	And(a=xResult5, b=yResult5, out=outTemp5);
+	And(a=xResult6, b=yResult6, out=outTemp6);
+	And(a=xResult7, b=yResult7, out=outTemp7);
+	And(a=xResult8, b=yResult8, out=outTemp8);
+	And(a=xResult9, b=yResult9, out=outTemp9);
+	And(a=xResult10,b=yResult10,out=outTemp10);
+	And(a=xResult11,b=yResult11,out=outTemp11);
+	And(a=xResult12,b=yResult12,out=outTemp12);
+	And(a=xResult13,b=yResult13,out=outTemp13);
+	And(a=xResult14,b=yResult14,out=outTemp14);
+	And(a=xResult15,b=yResult15,out=outTemp15);
+	
+	FullAdder(a=xResult0,b=yResult0,  c=false,sum=tempResult0,carry=carryTemp0);
+	FullAdder(a=xResult1,b=yResult1,  c=false,sum=tempResult1,carry=carryTemp1);
+	FullAdder(a=xResult2,b=yResult2,  c=false,sum=tempResult2,carry=carryTemp2);
+	FullAdder(a=xResult3,b=yResult3,  c=false,sum=tempResult3,carry=carryTemp3);
+	FullAdder(a=xResult4,b=yResult4,  c=false,sum=tempResult4,carry=carryTemp4);
+	FullAdder(a=xResult5,b=yResult5,  c=false,sum=tempResult5,carry=carryTemp5);
+	FullAdder(a=xResult6,b=yResult6,  c=false,sum=tempResult6,carry=carryTemp6);
+	FullAdder(a=xResult7,b=yResult7,  c=false,sum=tempResult7,carry=carryTemp7);
+	FullAdder(a=xResult8,b=yResult8,  c=false,sum=tempResult8,carry=carryTemp8);
+	FullAdder(a=xResult9,b=yResult9,  c=false,sum=tempResult9,carry=carryTemp9);
+	FullAdder(a=xResult10,b=yResult10,c=false,sum=tempResult10,carry=carryTemp10);
+	FullAdder(a=xResult11,b=yResult11,c=false,sum=tempResult11,carry=carryTemp11);
+	FullAdder(a=xResult12,b=yResult12,c=false,sum=tempResult12,carry=carryTemp12);
+	FullAdder(a=xResult13,b=yResult13,c=false,sum=tempResult13,carry=carryTemp13);
+	FullAdder(a=xResult14,b=yResult14,c=false,sum=tempResult14,carry=carryTemp14);
+	FullAdder(a=xResult15,b=yResult15,c=false,sum=tempResult15,carry=carryTemp15);
+
+	
+	
+	And(a=tempResult0, b=f,out=t0);
+	And(a=tempResult1, b=f,out=t1);
+	And(a=tempResult2, b=f,out=t2);
+	And(a=tempResult3, b=f,out=t3);
+	And(a=tempResult4, b=f,out=t4);
+	And(a=tempResult5, b=f,out=t5);
+	And(a=tempResult6, b=f,out=t6);
+	And(a=tempResult7, b=f,out=t7);
+	And(a=tempResult8, b=f,out=t8);
+	And(a=tempResult9, b=f,out=t9);
+	And(a=tempResult10,b=f,out=t10);
+	And(a=tempResult11,b=f,out=t11);
+	And(a=tempResult12,b=f,out=t12);
+	And(a=tempResult13,b=f,out=t13);
+	And(a=tempResult14,b=f,out=t14);
+	And(a=tempResult15,b=f,out=t15);
+	
+	And(a=carryTemp0, b=f,out=tt0);
+	And(a=carryTemp1, b=f,out=tt1);
+	And(a=carryTemp2, b=f,out=tt2);
+	And(a=carryTemp3, b=f,out=tt3);
+	And(a=carryTemp4, b=f,out=tt4);
+	And(a=carryTemp5, b=f,out=tt5);
+	And(a=carryTemp6, b=f,out=tt6);
+	And(a=carryTemp7, b=f,out=tt7);
+	And(a=carryTemp8, b=f,out=tt8);
+	And(a=carryTemp9, b=f,out=tt9);
+	And(a=carryTemp10,b=f,out=tt10);
+	And(a=carryTemp11,b=f,out=tt11);
+	And(a=carryTemp12,b=f,out=tt12);
+	And(a=carryTemp13,b=f,out=tt13);
+	And(a=carryTemp14,b=f,out=tt14);
+	And(a=carryTemp15,b=f,out=tt15);
+	
+	FullAdder(a=tt0,  b=carryTemp0,  c=false,		sum=ttt0, 	   carry=ccc0);
+	FullAdder(a=tt1,  b=carryTemp1,  c=ccc0, 		sum=ttt1,      carry=ccc1);
+	FullAdder(a=tt2,  b=carryTemp2,  c=ccc1, 		sum=ttt2,      carry=ccc2);
+	FullAdder(a=tt3,  b=carryTemp3,  c=ccc2, 		sum=ttt3,      carry=ccc3);
+	FullAdder(a=tt4,  b=carryTemp4,  c=ccc3, 		sum=ttt4,      carry=ccc4);
+	FullAdder(a=tt5,  b=carryTemp5,  c=ccc4, 		sum=ttt5,      carry=ccc5);
+	FullAdder(a=tt6,  b=carryTemp6,  c=ccc5, 		sum=ttt6,      carry=ccc6);
+	FullAdder(a=tt7,  b=carryTemp7,  c=ccc6, 		sum=ttt7,      carry=ccc7);
+	FullAdder(a=tt8,  b=carryTemp8,  c=ccc7, 		sum=ttt8,      carry=ccc8);
+	FullAdder(a=tt9,  b=carryTemp9,  c=ccc8, 		sum=ttt9,      carry=ccc9);
+	FullAdder(a=tt10,  b=carryTemp10, c=ccc9, 		sum=ttt10,     carry=ccc10);
+	FullAdder(a=tt11, b=carryTemp11, c=ccc10,		sum=ttt11,     carry=ccc11);
+	FullAdder(a=tt12, b=carryTemp12, c=ccc11,		sum=ttt12,     carry=ccc12);
+	FullAdder(a=tt13, b=carryTemp13, c=ccc12,		sum=ttt13,     carry=ccc13);
+	FullAdder(a=tt14, b=carryTemp14, c=ccc13,		sum=ttt14,     carry=ccc14);
+	FullAdder(a=tt15, b=carryTemp15, c=ccc14,		sum=ttt15,     carry=ccc15);
+	
+	
+	
+	
+	FullAdder(a=ttt0,  b=t0,  c=false,		sum=outResultTemp0, 	 carry=cccc0);
+	FullAdder(a=ttt1,  b=t1,  c=cccc0, 		sum=outResultTemp1,      carry=cccc1);
+	FullAdder(a=ttt2,  b=t2,  c=cccc1, 		sum=outResultTemp2,      carry=cccc2);
+	FullAdder(a=ttt3,  b=t3,  c=cccc2, 		sum=outResultTemp3,      carry=cccc3);
+	FullAdder(a=ttt4,  b=t4,  c=cccc3, 		sum=outResultTemp4,      carry=cccc4);
+	FullAdder(a=ttt5,  b=t5,  c=cccc4, 		sum=outResultTemp5,      carry=cccc5);
+	FullAdder(a=ttt6,  b=t6,  c=cccc5, 		sum=outResultTemp6,      carry=cccc6);
+	FullAdder(a=ttt7,  b=t7,  c=cccc6, 		sum=outResultTemp7,      carry=cccc7);
+	FullAdder(a=ttt8,  b=t8,  c=cccc7, 		sum=outResultTemp8,      carry=cccc8);
+	FullAdder(a=ttt9,  b=t9,  c=cccc8, 		sum=outResultTemp9,      carry=cccc9);
+	FullAdder(a=ttt10,  b=t10, c=cccc9, 		sum=outResultTemp10,     carry=cccc10);
+	FullAdder(a=ttt11, b=t11, c=cccc10,		sum=outResultTemp11,     carry=cccc11);
+	FullAdder(a=ttt12, b=t12, c=cccc11,		sum=outResultTemp12,     carry=cccc12);
+	FullAdder(a=ttt13, b=t13, c=cccc12,		sum=outResultTemp13,     carry=cccc13);
+	FullAdder(a=ttt14, b=t14, c=cccc13,		sum=outResultTemp14,     carry=cccc14);
+	FullAdder(a=ttt15, b=t15, c=cccc14,		sum=outResultTemp15,     carry=cccc15);
+	
+	
+	Xor(a=outResultTemp0, b=no,out=outResultTempTemp0);
+	Xor(a=outResultTemp1, b=no,out=outResultTempTemp1);
+	Xor(a=outResultTemp2, b=no,out=outResultTempTemp2);
+	Xor(a=outResultTemp3, b=no,out=outResultTempTemp3);
+	Xor(a=outResultTemp4, b=no,out=outResultTempTemp4);
+	Xor(a=outResultTemp5, b=no,out=outResultTempTemp5);
+	Xor(a=outResultTemp6, b=no,out=outResultTempTemp6);
+	Xor(a=outResultTemp7, b=no,out=outResultTempTemp7);
+	Xor(a=outResultTemp8, b=no,out=outResultTempTemp8);
+	Xor(a=outResultTemp9, b=no,out=outResultTempTemp9);
+	Xor(a=outResultTemp10,b=no,out=outResultTempTemp10);
+	Xor(a=outResultTemp11,b=no,out=outResultTempTemp11);
+	Xor(a=outResultTemp12,b=no,out=outResultTempTemp12);
+	Xor(a=outResultTemp13,b=no,out=outResultTempTemp13);
+	Xor(a=outResultTemp14,b=no,out=outResultTempTemp14);
+	Xor(a=outResultTemp15,b=no,out=outResultTempTemp15);
+	
+	Or(a=outResultTempTemp0, b=false,out=zr0);
+	Or(a=outResultTempTemp1, b=zr0,out=zr1);
+	Or(a=outResultTempTemp2, b=zr1,out=zr2);
+	Or(a=outResultTempTemp3, b=zr2,out=zr3);
+	Or(a=outResultTempTemp4, b=zr3,out=zr4);
+	Or(a=outResultTempTemp5, b=zr4,out=zr5);
+	Or(a=outResultTempTemp6, b=zr5,out=zr6);
+	Or(a=outResultTempTemp7, b=zr6,out=zr7);
+	Or(a=outResultTempTemp8, b=zr7,out=zr8);
+	Or(a=outResultTempTemp9, b=zr8,out=zr9);
+	Or(a=outResultTempTemp10,b=zr9,out=zr10);
+	Or(a=outResultTempTemp11,b=zr10,out=zr11);
+	Or(a=outResultTempTemp12,b=zr11,out=zr12);
+	Or(a=outResultTempTemp13,b=zr12,out=zr13);
+	Or(a=outResultTempTemp14,b=zr13,out=zr14);
+	Or(a=outResultTempTemp15,b=zr14,out=zr15);
+	Not(in=zr15,out=zr);
+	
+	And(a=outResultTempTemp15,b=outResultTempTemp15,out=ng);
+	
+	And(a=outResultTempTemp0, b=outResultTempTemp0, out=out[0]);
+	And(a=outResultTempTemp1, b=outResultTempTemp1, out=out[1]);
+	And(a=outResultTempTemp2, b=outResultTempTemp2, out=out[2]);
+	And(a=outResultTempTemp3, b=outResultTempTemp3, out=out[3]);
+	And(a=outResultTempTemp4, b=outResultTempTemp4, out=out[4]);
+	And(a=outResultTempTemp5, b=outResultTempTemp5, out=out[5]);
+	And(a=outResultTempTemp6, b=outResultTempTemp6, out=out[6]);
+	And(a=outResultTempTemp7, b=outResultTempTemp7, out=out[7]);
+	And(a=outResultTempTemp8, b=outResultTempTemp8, out=out[8]);
+	And(a=outResultTempTemp9, b=outResultTempTemp9, out=out[9]);
+	And(a=outResultTempTemp10,b=outResultTempTemp10,out=out[10]);
+	And(a=outResultTempTemp11,b=outResultTempTemp11,out=out[11]);
+	And(a=outResultTempTemp12,b=outResultTempTemp12,out=out[12]);
+	And(a=outResultTempTemp13,b=outResultTempTemp13,out=out[13]);
+	And(a=outResultTempTemp14,b=outResultTempTemp14,out=out[14]);
+	And(a=outResultTempTemp15,b=outResultTempTemp15,out=out[15]);
+	
+	                      
+}                
