@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class CodeWriter {
     private int index = 0;
+    private int callIndex = 0;
     private Writer writer;
     private String fileName;
     private Map<String, String> segmentMap = new HashMap<String, String>() {{
@@ -277,7 +278,7 @@ public class CodeWriter {
     }
 
     public void writeGoto(String label) throws IOException {
-        writer.append("@").append(label).append("\n").append("A=M\n0;JMP\n");
+        writer.append("@").append(label).append("\n").append("0;JMP\n");
     }
 
     public void writeIf(String label) throws IOException {
@@ -370,12 +371,14 @@ public class CodeWriter {
                 "D=M\n" +
                 "@LCL\n" +
                 "M=D\n");
-        writeGoto("RET");
+        writer.append("@RET\n" +
+                "A=M\n" +
+                "0;JMP\n");
     }
 
     public void writeCall(String functionName, int numArgs) throws IOException {
         //push return-address
-        pushSegment("@RETURN-ADDRESS");
+        pushReturn("RETURN-ADDRESS" + callIndex);
         //push lcl
         pushSegment(segmentMap.get(Parser.LOCAL));
         pushSegment(segmentMap.get(Parser.ARGUMENT));
@@ -387,21 +390,23 @@ public class CodeWriter {
         writeArithmetic(Parser.ADD);
         writeArithmetic(Parser.SUB);
         //ARG=SP-n-5
+      /*  writer.append("@SP\n" +
+                "M=M-1\n");*/
         writer.append("@SP\n" +
-                "M=M-1\n");
-        writer.append("@SP\n" +
-                "A=M\n" +
+                "A=M-1\n" +
                 "D=M\n" +
                 "@ARG\n" +
                 "M=D\n");
         //LCL=SP
         writer.append("@SP\n" +
-                "D=A\n" +
-                "@LCL\n");
+                "D=M\n" +
+                "@LCL\n" +
+                "M=D\n");
         //goto function
         writeGoto(functionName);
         //return label
-        writeLabel("RETURN-ADDRESS");
+        writeLabel("RETURN-ADDRESS" + callIndex);
+        index++;
     }
 
     public void writeFunction(String functionName, int numLocals) throws IOException {
@@ -414,6 +419,16 @@ public class CodeWriter {
     private void pushSegment(String segment) throws IOException {
         writer.append("@" + segment + "\n" +
                 "D=M\n" +
+                "@SP\n" +
+                "A=M\n" +
+                "M=D\n" +
+                "@SP\n" +
+                "M=M+1\n");
+    }
+
+    private void pushReturn(String returnAddress) throws IOException {
+        writer.append("@" + returnAddress + "\n" +
+                "D=A\n" +
                 "@SP\n" +
                 "A=M\n" +
                 "M=D\n" +

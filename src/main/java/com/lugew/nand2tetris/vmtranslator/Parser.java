@@ -49,8 +49,18 @@ public class Parser {
 
     private Scanner scanner;
     private String currentCommand;
+    private String fileName;
 
-    public Parser(String fileName) throws FileNotFoundException {
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public Parser(String fileName, String name) throws FileNotFoundException {
+        this.fileName = name;
         scanner = new Scanner(new FileReader(fileName));
         currentCommand = EMPTY;
     }
