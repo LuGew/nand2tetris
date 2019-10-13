@@ -25,7 +25,7 @@ public class Main {
             while (parser.hasMoreCommands()) {
                 switch (parser.commandType()) {
                     case Parser.C_ARITHMETIC:
-                        codeWriter.writeArithmetic(parser.getCurrentCommand());
+                        codeWriter.writeArithmetic(parser.getCurrentCommand().split("\\s")[0]);
                         break;
                     case Parser.C_POP:
                         codeWriter.writePushPop(Parser.C_POP, parser.arg1(), parser.arg2());

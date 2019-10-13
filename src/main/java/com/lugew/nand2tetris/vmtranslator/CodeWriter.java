@@ -287,7 +287,7 @@ public class CodeWriter {
                 "A=M\n" +
                 "D=M\n" +
                 "@" + label + "\n" +
-                "D;JGT\n");
+                "D;JLT\n");
     }
 
     public void writeReturn() throws IOException {
@@ -380,6 +380,9 @@ public class CodeWriter {
         //push return-address
         pushReturn("RETURN-ADDRESS" + callIndex);
         //push lcl
+        //push arg
+        //push this
+        //push that
         pushSegment(segmentMap.get(Parser.LOCAL));
         pushSegment(segmentMap.get(Parser.ARGUMENT));
         pushSegment(segmentMap.get(Parser.THIS));
@@ -406,7 +409,7 @@ public class CodeWriter {
         writeGoto(functionName);
         //return label
         writeLabel("RETURN-ADDRESS" + callIndex);
-        index++;
+        callIndex++;
     }
 
     public void writeFunction(String functionName, int numLocals) throws IOException {
