@@ -16,7 +16,7 @@ public class Main {
 //        String fileName = "BasicLoop";
 //        String fileName = "FibonacciSeries";
 //        String fileName = "SimpleFunction";
-        String fileName = "FibonacciElement";
+        String fileName = "NestedCall";
         List<Parser> parsers = getParsers();
         CodeWriter codeWriter = getFileCodeWriter(fileName);
         codeWriter.writeInit();
@@ -71,7 +71,9 @@ public class Main {
     private static List<Parser> getParsers() throws FileNotFoundException {
         List<Parser> parsers = new ArrayList<>();
 
-        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\FibonacciElement\\";
+//        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\FibonacciElement\\";
+//        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\StaticsTest\\";
+        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\NestedCall\\";
 //        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\SimpleFunction\\";
 //        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\ProgramFlow\\BasicLoop\\";
 //        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\ProgramFlow\\FibonacciSeries\\";
@@ -96,7 +98,9 @@ public class Main {
 //        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\SimpleFunction\\" + fileName + ".asm";
 //        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\ProgramFlow\\BasicLoop\\" + fileName + ".asm";
 //        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\ProgramFlow\\FibonacciSeries\\" + fileName + ".asm";
-        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\FibonacciElement\\" + fileName + ".asm";
+//        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\StaticsTest\\" + fileName + ".asm";
+        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\NestedCall\\" + fileName + ".asm";
+//        String pathName = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\08\\FunctionCalls\\FibonacciElement\\" + fileName + ".asm";
         return new CodeWriter(pathName);
     }
 }

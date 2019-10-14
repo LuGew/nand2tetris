@@ -317,12 +317,11 @@ public class CodeWriter {
                 "A=M\n" +
                 "M=D\n");
 
-        //SP=ARG+1
+        //SPTEMP=ARG+1
         writer.append("@ARG\n" +
                 "D=M+1\n" +
-                "@SP\n" +
+                "@SPTEMP\n" +
                 "M=D\n");
-
         //THAT=*(FRAME-1)
         pushSegment("FRAME");
         writePushPop(Parser.C_PUSH, Parser.CONSTANT, 1);
@@ -371,6 +370,13 @@ public class CodeWriter {
                 "D=M\n" +
                 "@LCL\n" +
                 "M=D\n");
+
+        //SP=R5
+        writer.append("@SPTEMP\n" +
+                "D=M\n" +
+                "@SP\n" +
+                "M=D\n");
+
         writer.append("@RET\n" +
                 "A=M\n" +
                 "0;JMP\n");
@@ -393,10 +399,10 @@ public class CodeWriter {
         writeArithmetic(Parser.ADD);
         writeArithmetic(Parser.SUB);
         //ARG=SP-n-5
-      /*  writer.append("@SP\n" +
-                "M=M-1\n");*/
         writer.append("@SP\n" +
-                "A=M-1\n" +
+                "M=M-1\n");
+        writer.append("@SP\n" +
+                "A=M\n" +
                 "D=M\n" +
                 "@ARG\n" +
                 "M=D\n");
