@@ -1,5 +1,8 @@
 package com.lugew.nand2tetris.compiler;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 /**
  * jack 分析器
  *
@@ -8,6 +11,13 @@ package com.lugew.nand2tetris.compiler;
  */
 public class JackAnalyzer {
 
-    public JackAnalyzer() {
+    public static void main(String[] args) throws IOException {
+        String fileName = "";
+        JackTokenizer jackTokenizer = new JackTokenizer(fileName);
+        jackTokenizer.writeStart();
+        while (jackTokenizer.hasMoreTokens()) {
+            jackTokenizer.writeCurrentTokenToFile();
+        }
+        jackTokenizer.writeEnd();
     }
 }

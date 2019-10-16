@@ -1,7 +1,6 @@
 package com.lugew.nand2tetris.compiler;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public class JackTokenizer {
     private Scanner scanner;
-    private String currentCommand;
+    private String currentToken;
     private String fileName;
 
     public static final String EMPTY = "";
@@ -63,21 +62,25 @@ public class JackTokenizer {
     public static final String LESS_THAN = "<";
     public static final String EQUAL = "=";
     public static final String SWUNG_DASH = "~";
+    private Writer writer;
 
-
-    public JackTokenizer(String fileName) throws FileNotFoundException {
+    public JackTokenizer(String fileName) throws IOException {
         this.fileName = fileName;
         scanner = new Scanner(new FileReader(fileName));
-        currentCommand = EMPTY;
+        int dotIndex = fileName.lastIndexOf(".");
+        String prefix = fileName.substring(0, dotIndex);
+        writer = new PrintWriter(prefix + ".xml");
+        currentToken = EMPTY;
+
     }
 
-    public boolean hasMoreCommands() {
+    public boolean hasMoreTokens() {
         advance();
-        return !EMPTY.equals(currentCommand);
+        return !EMPTY.equals(currentToken);
     }
 
     public int tokenType() {
-        switch (currentCommand) {
+        switch (currentToken) {
             case CLASS:
             case METHOD:
             case INT:
@@ -117,13 +120,14 @@ public class JackTokenizer {
             case GREATER_THAN:
             case LESS_THAN:
             case EQUAL:
+            case SWUNG_DASH:
                 return SYMBOL;
             default:
-                if (isIdentifier(currentCommand)) {
+                if (isIdentifier(currentToken)) {
                     return IDENTIFIER;
-                } else if (isIntegerConstant(currentCommand)) {
+                } else if (isIntegerConstant(currentToken)) {
                     return INT_CONST;
-                } else if (isStringConstant(currentCommand)) {
+                } else if (isStringConstant(currentToken)) {
                     return STRING_CONST;
                 }
                 return 0;
@@ -133,33 +137,33 @@ public class JackTokenizer {
 
     private void advance() {
         while (scanner.hasNext()) {
-            currentCommand = scanner.next();
+            currentToken = scanner.next();
             if (!isComment() && !isSpace()) {
                 return;
             }
         }
-        currentCommand = EMPTY;
+        currentToken = EMPTY;
     }
 
     private boolean isComment() {
-        return match(currentCommand, "\\/\\/[^\\n]*");
+        return match(currentToken, "\\/\\/[^\\n]*");
     }
 
     private boolean isSpace() {
-        return match(currentCommand, "\\s*");
+        return match(currentToken, "\\s*");
     }
 
     private boolean isIntegerConstant(String value) {
 
-        return match(currentCommand, "^[0-9]*$");
+        return match(currentToken, "^[0-9]*$");
     }
 
     private boolean isStringConstant(String value) {
-        return match(currentCommand, "\"\\w*\"");
+        return match(currentToken, "\"\\w*\"");
     }
 
     private boolean isIdentifier(String value) {
-        return match(currentCommand, "[A-Za-z_$]+[A-Za-z_$\\d]");
+        return match(currentToken, "[A-Za-z_$]+[A-Za-z_$\\d]");
     }
 
     private boolean match(String input, String regex) {
@@ -168,9 +172,47 @@ public class JackTokenizer {
         return matcher.matches();
     }
 
-    public String getCurrentCommand() {
-        return currentCommand;
+    public String getCurrentToken() {
+        return currentToken;
     }
 
 
+    public void writeCurrentTokenToFile() throws IOException {
+        int tokenType = tokenType();
+        switch (tokenType) {
+            case KEYWORD:
+                writer.append("<keyword>").append(currentToken).append("</keyword>\n");
+                break;
+            case SYMBOL:
+                String output = currentToken;
+                if (LESS_THAN.equals(currentToken)) {
+                    output = "&lt;";
+                } else if (GREATER_THAN.equals(currentToken)) {
+                    output = "&gt;";
+                } else if (AND.equals(currentToken)) {
+                    output = "&amp";
+                }
+                writer.append("<symbol>").append(output).append("</symbol>\n");
+                break;
+            case IDENTIFIER:
+                writer.append("<identifier>").append(currentToken).append("</identifier>\n");
+                break;
+            case INT_CONST:
+                writer.append("<integerConstant>").append(currentToken).append("</integerConstant>\n");
+                break;
+            case STRING_CONST:
+                writer.append("<stringConstant>").append(currentToken).append("</stringConstant>\n");
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void writeStart() throws IOException {
+        writer.append("<tokens>\n");
+    }
+
+    public void writeEnd() throws IOException {
+        writer.append("</tokens>\n");
+    }
 }
