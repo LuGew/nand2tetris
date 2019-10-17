@@ -15,9 +15,7 @@ public class JackAnalyzer {
         String fileName = "";
         JackTokenizer jackTokenizer = new JackTokenizer(fileName);
         jackTokenizer.writeStart();
-        while (jackTokenizer.hasMoreTokens()) {
-            jackTokenizer.writeCurrentTokenToFile();
-        }
+        jackTokenizer.writeCurrentTokenToFile();
         jackTokenizer.writeEnd();
     }
 }

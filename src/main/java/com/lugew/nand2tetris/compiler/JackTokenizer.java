@@ -1,7 +1,10 @@
 package com.lugew.nand2tetris.compiler;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +18,7 @@ public class JackTokenizer {
     private Scanner scanner;
     private String currentToken;
     private String fileName;
+    Set<String> classMap = new HashSet<>();
 
     public static final String EMPTY = "";
     public static final int KEYWORD = 1;
@@ -28,6 +32,7 @@ public class JackTokenizer {
     public static final String FUNCTION = "function";
     public static final String CONSTRUCTOR = "constructor";
     public static final String CHAR = "char";
+    public static final String BOOLEAN = "boolean";
     public static final String VOID = "void";
     public static final String VAR = "var";
     public static final String STATIC = "static";
@@ -87,6 +92,7 @@ public class JackTokenizer {
             case FUNCTION:
             case CONSTRUCTOR:
             case CHAR:
+            case BOOLEAN:
             case VOID:
             case VAR:
             case STATIC:
@@ -135,6 +141,22 @@ public class JackTokenizer {
 
     }
 
+    public String keyword() {
+        return currentToken;
+    }
+
+    public String identifier() {
+        return currentToken;
+    }
+
+    public String inVal() {
+        return currentToken;
+    }
+
+    public String stringVal() {
+        return currentToken;
+    }
+
     private void advance() {
         while (scanner.hasNext()) {
             currentToken = scanner.next();
@@ -178,34 +200,192 @@ public class JackTokenizer {
 
 
     public void writeCurrentTokenToFile() throws IOException {
-        int tokenType = tokenType();
-        switch (tokenType) {
-            case KEYWORD:
-                writer.append("<keyword>").append(currentToken).append("</keyword>\n");
+        while (hasMoreTokens()) {
+            int tokenType = tokenType();
+            switch (tokenType) {
+                case KEYWORD:
+                    switch (currentToken) {
+                        case CLASS:
+                            writer.append("<" + CLASS + ">\n");
+                            writeKeyword();
+                            if (hasMoreTokens()) {
+                                writeIdentifier();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            if (hasMoreTokens()) {
+                                writeSymbol();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            writeCurrentTokenToFile();
+                            writer.append("</" + CLASS + ">\n");
+                            break;
+                        case STATIC:
+                        case FIELD:
+                            writer.append("<classVarDec>\n");
+                            writeKeyword();
+                            if (hasMoreTokens()) {
+                                writeKeyword();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            if (hasMoreTokens()) {
+                                writeKeyword();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            boolean endFlag;
+                            while (hasMoreTokens()) {
+                                endFlag = false;
+                                switch (currentToken) {
+                                    case COMMA:
+                                        writeSymbol();
+                                        break;
+                                    case SEMICOLON:
+                                        writeSymbol();
+                                        endFlag = true;
+                                    default:
+                                        writeIdentifier();
+                                        break;
+                                }
+                                if (endFlag) {
+                                    break;
+                                }
+                            }
+                            writer.append("</classVarDec>\n");
+                            break;
+                        case INT:
+                        case CHAR:
+                        case BOOLEAN:
+                            writeKeyword();
+                            break;
+                        case CONSTRUCTOR:
+                        case FUNCTION:
+                        case METHOD:
+                            writer.append("<subroutineDec>\n");
+                            writeKeyword();
+                            //type
+                            if (hasMoreTokens()) {
+                                writeKeyword();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            //subroutineName
+                            if (hasMoreTokens()) {
+                                writeIdentifier();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            //（
+                            if (hasMoreTokens()) {
+                                writeSymbol();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            writeParameterList();
+                            if (hasMoreTokens()) {
+                                writeSymbol();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            writeSubroutineBody();
+                            if (hasMoreTokens()) {
+                                writeSymbol();
+                            } else {
+                                throw new RuntimeException("not has more tokens");
+                            }
+                            writer.append("</subroutineDec>\n");
+                    }
+
+                    break;
+                case SYMBOL:
+                    writeSymbol();
+                    break;
+                case IDENTIFIER:
+                    writeIdentifier();
+                    break;
+                case INT_CONST:
+                    writeIntConst();
+                    break;
+                case STRING_CONST:
+                    writeStringConst();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    }
+
+
+    private void writeParameterList() throws IOException {
+        writer.append("<parameterList>\n");
+        boolean endFlagSubroutineDec;
+        while (hasMoreTokens()) {
+            endFlagSubroutineDec = false;
+            switch (currentToken) {
+                case CLOSE_PAREN:
+                    writeSymbol();
+                    endFlagSubroutineDec = true;
+                    break;
+                case COMMA:
+                    writeSymbol();
+                    break;
+                default:
+                    writeTypeOrVar();
+                    break;
+            }
+            if (endFlagSubroutineDec) {
                 break;
-            case SYMBOL:
-                String output = currentToken;
-                if (LESS_THAN.equals(currentToken)) {
-                    output = "&lt;";
-                } else if (GREATER_THAN.equals(currentToken)) {
-                    output = "&gt;";
-                } else if (AND.equals(currentToken)) {
-                    output = "&amp";
-                }
-                writer.append("<symbol>").append(output).append("</symbol>\n");
-                break;
-            case IDENTIFIER:
-                writer.append("<identifier>").append(currentToken).append("</identifier>\n");
-                break;
-            case INT_CONST:
-                writer.append("<integerConstant>").append(currentToken).append("</integerConstant>\n");
-                break;
-            case STRING_CONST:
-                writer.append("<stringConstant>").append(currentToken).append("</stringConstant>\n");
+            }
+        }
+        writer.append("</parameterList>\n");
+    }
+
+    private void writeTypeOrVar() throws IOException {
+        switch (currentToken) {
+            case INT:
+            case CHAR:
+            case BOOLEAN:
+                writeKeyword();
                 break;
             default:
+                if (classMap.contains(currentToken)) {
+                    writeKeyword();
+                } else {
+                    writeIdentifier();
+                }
                 break;
         }
+    }
+
+    private void writeSymbol() throws IOException {
+        String output = currentToken;
+        if (LESS_THAN.equals(currentToken)) {
+            output = "&lt;";
+        } else if (GREATER_THAN.equals(currentToken)) {
+            output = "&gt;";
+        } else if (AND.equals(currentToken)) {
+            output = "&amp";
+        }
+        writer.append("<symbol>").append(output).append("</symbol>\n");
+    }
+
+    private void writeKeyword() throws IOException {
+        writer.append("<keyword>").append(currentToken).append("</keyword>\n");
+    }
+
+    private void writeIdentifier() throws IOException {
+        writer.append("<identifier>").append(currentToken).append("</identifier>\n");
+    }
+
+    private void writeIntConst() throws IOException {
+        writer.append("<integerConstant>").append(currentToken).append("</integerConstant>\n");
+    }
+
+    private void writeStringConst() throws IOException {
+        writer.append("<stringConstant>").append(currentToken).append("</stringConstant>\n");
     }
 
     public void writeStart() throws IOException {
