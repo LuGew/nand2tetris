@@ -74,7 +74,7 @@ public class JackTokenizer {
         scanner = new Scanner(new FileReader(fileName));
         int dotIndex = fileName.lastIndexOf(".");
         String prefix = fileName.substring(0, dotIndex);
-        writer = new PrintWriter(prefix + ".xml");
+        writer = new PrintWriter(prefix + "Test.xml");
         currentToken = EMPTY;
 
     }
@@ -162,13 +162,15 @@ public class JackTokenizer {
             currentToken = scanner.next();
             if (!isComment() && !isSpace()) {
                 return;
+            } else {
+                scanner.nextLine();
             }
         }
         currentToken = EMPTY;
     }
 
     private boolean isComment() {
-        return match(currentToken, "\\/\\/[^\\n]*");
+        return match(currentToken, "\\/\\/[^\\n]*") || match(currentToken, "/\\*\\*");
     }
 
     private boolean isSpace() {
@@ -204,100 +206,7 @@ public class JackTokenizer {
             int tokenType = tokenType();
             switch (tokenType) {
                 case KEYWORD:
-                    switch (currentToken) {
-                        case CLASS:
-                            writer.append("<" + CLASS + ">\n");
-                            writeKeyword();
-                            if (hasMoreTokens()) {
-                                writeIdentifier();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            if (hasMoreTokens()) {
-                                writeSymbol();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            writeCurrentTokenToFile();
-                            writer.append("</" + CLASS + ">\n");
-                            break;
-                        case STATIC:
-                        case FIELD:
-                            writer.append("<classVarDec>\n");
-                            writeKeyword();
-                            if (hasMoreTokens()) {
-                                writeKeyword();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            if (hasMoreTokens()) {
-                                writeKeyword();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            boolean endFlag;
-                            while (hasMoreTokens()) {
-                                endFlag = false;
-                                switch (currentToken) {
-                                    case COMMA:
-                                        writeSymbol();
-                                        break;
-                                    case SEMICOLON:
-                                        writeSymbol();
-                                        endFlag = true;
-                                    default:
-                                        writeIdentifier();
-                                        break;
-                                }
-                                if (endFlag) {
-                                    break;
-                                }
-                            }
-                            writer.append("</classVarDec>\n");
-                            break;
-                        case INT:
-                        case CHAR:
-                        case BOOLEAN:
-                            writeKeyword();
-                            break;
-                        case CONSTRUCTOR:
-                        case FUNCTION:
-                        case METHOD:
-                            writer.append("<subroutineDec>\n");
-                            writeKeyword();
-                            //type
-                            if (hasMoreTokens()) {
-                                writeKeyword();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            //subroutineName
-                            if (hasMoreTokens()) {
-                                writeIdentifier();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            //（
-                            if (hasMoreTokens()) {
-                                writeSymbol();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            writeParameterList();
-                            if (hasMoreTokens()) {
-                                writeSymbol();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            writeSubroutineBody();
-                            if (hasMoreTokens()) {
-                                writeSymbol();
-                            } else {
-                                throw new RuntimeException("not has more tokens");
-                            }
-                            writer.append("</subroutineDec>\n");
-                    }
-
+                    writeKeyword();
                     break;
                 case SYMBOL:
                     writeSymbol();
@@ -394,5 +303,10 @@ public class JackTokenizer {
 
     public void writeEnd() throws IOException {
         writer.append("</tokens>\n");
+    }
+
+    public void closeWriter() throws IOException {
+        writer.flush();
+        writer.close();
     }
 }

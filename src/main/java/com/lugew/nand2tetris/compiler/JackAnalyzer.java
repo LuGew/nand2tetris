@@ -1,6 +1,5 @@
 package com.lugew.nand2tetris.compiler;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -12,10 +11,13 @@ import java.io.IOException;
 public class JackAnalyzer {
 
     public static void main(String[] args) throws IOException {
-        String fileName = "";
-        JackTokenizer jackTokenizer = new JackTokenizer(fileName);
+        String fileName = "Main.jack";
+        String path = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\10\\ArrayTest\\";
+        String realPath = path + fileName;
+        JackTokenizer jackTokenizer = new JackTokenizer(realPath);
         jackTokenizer.writeStart();
         jackTokenizer.writeCurrentTokenToFile();
         jackTokenizer.writeEnd();
+        jackTokenizer.closeWriter();
     }
 }
