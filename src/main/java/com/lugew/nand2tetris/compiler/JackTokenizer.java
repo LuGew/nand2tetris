@@ -169,6 +169,33 @@ public class JackTokenizer {
         currentToken = EMPTY;
     }
 
+    private boolean isSpecialChar(char value) {
+        switch (value) {
+            case '[':
+            case '{':
+            case '}':
+            case ']':
+            case '(':
+            case ')':
+            case '.':
+            case ',':
+            case ';':
+            case '*':
+            case '/':
+            case '+':
+            case '-':
+            case '&':
+            case '|':
+            case '<':
+            case '>':
+            case '~':
+            case '=':
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private boolean isComment() {
         return match(currentToken, "\\/\\/[^\\n]*") || match(currentToken, "/\\*\\*");
     }
@@ -206,21 +233,35 @@ public class JackTokenizer {
             int tokenType = tokenType();
             switch (tokenType) {
                 case KEYWORD:
-                    writeKeyword();
+                    writeKeyword(currentToken);
                     break;
                 case SYMBOL:
-                    writeSymbol();
+                    writeSymbol(currentToken);
                     break;
                 case IDENTIFIER:
-                    writeIdentifier();
+                    writeIdentifier(currentToken);
                     break;
                 case INT_CONST:
-                    writeIntConst();
+                    writeIntConst(currentToken);
                     break;
                 case STRING_CONST:
-                    writeStringConst();
+                    writeStringConst(currentToken);
                     break;
                 default:
+                    StringReader stringReader = new StringReader(currentToken);
+                    StringBuilder stringBuilder = new StringBuilder();
+                    int value;
+                    while ((value = stringReader.read()) != -1) {
+                        if (isSpecialChar((char) value)) {
+                            if (stringBuilder.length() > 0) {
+                                writeIdentifier(stringBuilder.toString());
+                                stringBuilder = new StringBuilder();
+                            }
+                            writeSymbol((char) value + "");
+                        } else {
+                            stringBuilder.append((char) value);
+                        }
+                    }
                     break;
             }
         }
@@ -228,73 +269,73 @@ public class JackTokenizer {
     }
 
 
-    private void writeParameterList() throws IOException {
-        writer.append("<parameterList>\n");
-        boolean endFlagSubroutineDec;
-        while (hasMoreTokens()) {
-            endFlagSubroutineDec = false;
-            switch (currentToken) {
-                case CLOSE_PAREN:
-                    writeSymbol();
-                    endFlagSubroutineDec = true;
-                    break;
-                case COMMA:
-                    writeSymbol();
-                    break;
-                default:
-                    writeTypeOrVar();
-                    break;
-            }
-            if (endFlagSubroutineDec) {
-                break;
-            }
-        }
-        writer.append("</parameterList>\n");
-    }
-
+    /*  private void writeParameterList() throws IOException {
+          writer.append("<parameterList>\n");
+          boolean endFlagSubroutineDec;
+          while (hasMoreTokens()) {
+              endFlagSubroutineDec = false;
+              switch (currentToken) {
+                  case CLOSE_PAREN:
+                      writeSymbol();
+                      endFlagSubroutineDec = true;
+                      break;
+                  case COMMA:
+                      writeSymbol();
+                      break;
+                  default:
+                      writeTypeOrVar();
+                      break;
+              }
+              if (endFlagSubroutineDec) {
+                  break;
+              }
+          }
+          writer.append("</parameterList>\n");
+      }
+  */
     private void writeTypeOrVar() throws IOException {
         switch (currentToken) {
             case INT:
             case CHAR:
             case BOOLEAN:
-                writeKeyword();
+                writeKeyword(currentToken);
                 break;
             default:
                 if (classMap.contains(currentToken)) {
-                    writeKeyword();
+                    writeKeyword(currentToken);
                 } else {
-                    writeIdentifier();
+                    writeIdentifier(currentToken);
                 }
                 break;
         }
     }
 
-    private void writeSymbol() throws IOException {
-        String output = currentToken;
-        if (LESS_THAN.equals(currentToken)) {
+    private void writeSymbol(String value) throws IOException {
+        String output = value;
+        if (LESS_THAN.equals(value)) {
             output = "&lt;";
-        } else if (GREATER_THAN.equals(currentToken)) {
+        } else if (GREATER_THAN.equals(value)) {
             output = "&gt;";
-        } else if (AND.equals(currentToken)) {
+        } else if (AND.equals(value)) {
             output = "&amp";
         }
         writer.append("<symbol>").append(output).append("</symbol>\n");
     }
 
-    private void writeKeyword() throws IOException {
-        writer.append("<keyword>").append(currentToken).append("</keyword>\n");
+    private void writeKeyword(String value) throws IOException {
+        writer.append("<keyword>").append(value).append("</keyword>\n");
     }
 
-    private void writeIdentifier() throws IOException {
-        writer.append("<identifier>").append(currentToken).append("</identifier>\n");
+    private void writeIdentifier(String value) throws IOException {
+        writer.append("<identifier>").append(value).append("</identifier>\n");
     }
 
-    private void writeIntConst() throws IOException {
-        writer.append("<integerConstant>").append(currentToken).append("</integerConstant>\n");
+    private void writeIntConst(String value) throws IOException {
+        writer.append("<integerConstant>").append(value).append("</integerConstant>\n");
     }
 
-    private void writeStringConst() throws IOException {
-        writer.append("<stringConstant>").append(currentToken).append("</stringConstant>\n");
+    private void writeStringConst(String value) throws IOException {
+        writer.append("<stringConstant>").append(value).append("</stringConstant>\n");
     }
 
     public void writeStart() throws IOException {
