@@ -16,6 +16,8 @@ public class JackAnalyzer {
         String path = "D:\\LuGew\\Study\\Nand2Tetris\\nand2tetris\\projects\\10\\ArrayTest\\";
         String realPath = path + fileName;
         realPath = DeleteComments.clearComment(new File(realPath));
+
+
         JackTokenizer jackTokenizer = new JackTokenizer(realPath);
         jackTokenizer.writeStart();
         jackTokenizer.writeCurrentTokenToFile();

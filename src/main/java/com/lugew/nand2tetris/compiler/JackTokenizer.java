@@ -157,10 +157,31 @@ public class JackTokenizer {
         return currentToken;
     }
 
-    private void advance() {
-        while (scanner.hasNext()) {
-            currentToken = scanner.next();
+    /*    private void advance() {
+            while (scanner.hasNext()) {
+                currentToken = scanner.next();
+                if (!isComment() && !isSpace()) {
+                    return;
+                } else {
+                    scanner.nextLine();
+                }
+            }
+            currentToken = EMPTY;
+        }*/
+    private StringReader stringReader;
+
+    private void advance() throws IOException {
+        while (scanner.hasNextLine()) {
+            currentToken = scanner.nextLine();
             if (!isComment() && !isSpace()) {
+                StringBuffer stringBuffer = new StringBuffer();
+                stringReader = new StringReader(currentToken);
+                int value = -1;
+                while ((value = stringReader.read())!=-1) {
+
+                }
+
+
                 return;
             } else {
                 scanner.nextLine();
